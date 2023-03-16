@@ -9,4 +9,21 @@ export const fetchComments = async (url) => {
     }
 };
 
+export const postComment = async (formData) => {
+    try {
+        let res = await axios
+            .post("/api/comments/store", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            })
+            .catch((error) => {
+                return error;
+            });
+
+        return res;
+    } catch (e) {
+        return e;
+    }
+};
 

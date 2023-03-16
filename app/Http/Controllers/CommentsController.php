@@ -86,6 +86,24 @@ class CommentsController extends Controller
         }
     }
 
+    public function storeComment(CommentRequest $request)
+    {
+
+        $user = User::firstOrCreate([
+            'name' => $request->username,
+            'homepage' => $request->homepage,
+            'email' => $request->email,
+        ]);
+
+        $comment = Comment::create([
+            'text' => $request->comment,
+            'user_id' => $user->id,
+            'comment_reply_id' => $request->replyId,
+        ]);
+
+        return true;
+    }
+
     private function sortComments($sort_by)
     {
         switch ($sort_by) {

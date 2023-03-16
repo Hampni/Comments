@@ -51,6 +51,7 @@
                 <CommentComponent 
                     v-for="comment in this.comment.replies" 
                     :key="comment.id" 
+                    @commented="this.$emit('commented'); reply = false;"
                     :comment="comment" />
         </div>
     </article>
