@@ -65,19 +65,6 @@
                 />
             </div>
             <div class="mb-4">
-                <img
-                    id="captchaImage"
-                    :src="captchaImage"
-                    alt="captcha image"
-                />
-                <input
-                    :id="`captcha-${this.replyId}`"
-                    class="appearance-none border rounded w-full mt-3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    v-model="captchaInput"
-                    placeholder="Captcha"
-                />
-            </div>
-            <div class="mb-4">
                 <label
                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                     for="file"
@@ -86,6 +73,7 @@
                     <i class="mt-2 text-sm text-red-600" id="file-error"></i>
                 </label>
                 <input
+                    @change="arrangeFiles()"
                     class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                     type="file"
                     name="file"
@@ -126,6 +114,7 @@
                 Post comment
             </button>
             <button
+                @click.prevent="commentPreview()"
                 type="submit"
                 class="inline-flex items-center py-2.5 px-4 mx-2 text-xs font-medium text-center text-white bg-primary-700 rounded-lg focus:ring-4 focus:ring-primary-200 dark:focus:ring-primary-900 hover:bg-primary-800"
             >
@@ -164,6 +153,24 @@ export default {
                 this.homepage = formData.homepage;
             }
         },
+        arrangeFiles() {
+            if (this.$refs.myFiles.files.length > 0) {
+              this.images.forEach((image) => {
+                URL.revokeObjectURL(image);
+              });
+              this.images = [];
+              this.files = [];
+              for (let i = 0; i < this.$refs.myFiles.files.length; i++) {
+                let file = this.$refs.myFiles.files[i];
+                if (file.type.startsWith('image/')) {
+                  let src = URL.createObjectURL(file);
+                  this.images.push(src);
+                } else {
+                    this.files.push(file);
+                }
+              }
+            }
+        },
         async post() {
             const formElement = document.getElementById(
                 `commentForm-${this.replyId}`
@@ -194,6 +201,64 @@ export default {
                     })
                 );
             }
+        },
+        commentPreview() {
+            const string = this.comment;
+            const strippedString = string.replace(/^[\r\n]+|[\r\n]+$/g, "");
+            if (/^\s*$/.test(strippedString)) {
+                this.comment = "";
+                this.$refs.myTextarea.value = "";
+            } else {
+                this.comment = strippedString;
+            }
+
+            const formElement = document.getElementById(
+                `commentForm-${this.replyId}`
+            );
+
+            if (!formElement.reportValidity()) {
+                return;
+            }
+
+            const formData = new FormData(formElement);
+
+            const date = new Date();
+            const created_at = `${date.getFullYear()}-${(date.getMonth() + 1)
+                .toString()
+                .padStart(2, "0")}-${date
+                .getDate()
+                .toString()
+                .padStart(2, "0")} in ${date
+                .getHours()
+                .toString()
+                .padStart(2, "0")}:${date
+                .getMinutes()
+                .toString()
+                .padStart(2, "0")}`;
+
+            const textWithLineBreaks = formData.get("comment");
+            const textWithBreakTags = textWithLineBreaks.replace(
+                /(?:\r\n|\r|\n)/g,
+                "<br>"
+            );
+            const textWithSingleBreakTags = textWithBreakTags.replace(
+                /(?:<br>\s*){2,}/g,
+                "<br>"
+            );
+
+            const data = {
+                name: formData.get("username"),
+                email: formData.get("email"),
+                text: textWithSingleBreakTags,
+                replies: [],
+                created_at: created_at,
+            };
+
+            this.$emit("preview", data);
+        },
+        preview(index) {
+            this.indexRef = index;
+            this.visibleRef = true;
         },
     },
 };

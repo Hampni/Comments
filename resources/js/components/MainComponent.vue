@@ -119,7 +119,6 @@ export default {
         },
         async commentPreview(comment) {
             await this.fetch();
-            this.comments.unshift(comment);
         }
     },
     watch: {
