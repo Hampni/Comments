@@ -9,7 +9,9 @@
                         Discussion ({{ commentsAmount }})
                     </h2>
                 </div>
-                <FormComponent/>
+                <FormComponent
+                    @preview="commentPreview"
+                    @commented="fetch()" />
                 <div class="text-right my-3">
                     <button @click.prevent="sort(name)" type="button" class="mx-1 px-3 py-2 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
                         {{ name.label }} 
@@ -25,6 +27,8 @@
                         <i v-else class="fa-solid fa-arrow-up-a-z"></i></button>
                 </div>
                 <CommentComponent
+                    @preview="commentPreview"
+                    @commented="fetch()"
                     v-for="comment in this.comments"
                     :key="comment.id"
                     :comment="comment"
@@ -60,7 +64,7 @@
 </template>
 
 <script>
-import { fetchComments } from "../api.js";
+import { fetchComments, clearCache } from "../api.js";
 import CommentComponent from "./CommentComponent.vue";
 import FormComponent from "./FormComponent.vue";
 
@@ -92,6 +96,14 @@ export default {
         CommentComponent,
         FormComponent,
     },
+    created() {
+        window.Echo.channel('new-comment').listen('NewRecordCreated', async (data) => {
+            if (data.message === "new_comment_posted") {
+                await clearCache('/api/clearCache');
+                await this.fetch();
+            }
+        });
+    },
     mounted() {
         this.fetch();
     },
@@ -119,6 +131,7 @@ export default {
         },
         async commentPreview(comment) {
             await this.fetch();
+            this.comments.unshift(comment);
         }
     },
     watch: {

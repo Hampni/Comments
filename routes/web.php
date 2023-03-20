@@ -17,3 +17,4 @@ use App\Http\Controllers\CommentsController;
 Route::get('/', function () {
     return view('homepage');
 });
+Route::get('/getCapthca', [CommentsController::class, 'getCapthca']);
