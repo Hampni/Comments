@@ -19,5 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('comments', [CommentsController::class, 'getComments'])->name('api.prime.comments');
+Route::get('replyComments', [CommentsController::class, 'getReplyComments'])->name('api.reply.comments');
 
 Route::post('comments/store', [CommentsController::class, 'storeComment'])->name('api.store.comment');

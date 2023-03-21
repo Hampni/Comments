@@ -18,7 +18,7 @@
                     </p>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-600 dark:text-gray-400 text-right"><time pubdate>{{ comment.created_at }}</time></p>
+                    <p class="text-xs text-gray-600 dark:text-gray-400 text-right"><time pubdate>{{ new Date(comment.created_at).toLocaleString('en-US', this.options) }}</time></p>
                 </div>
             </div>
         </footer>
@@ -69,23 +69,30 @@
              <FormComponent 
                 v-if="reply"
                 @preview="commentPreview"
-                @commented="this.$emit('commented'); reply = false;"
+                @commented="this.fetchReplies(); reply = false;"
                 :replyId="comment.id"/>
         </div>
 
         <button 
             @click="show = !show"
-            v-if="this.comment.replies.length > 0"
+            v-if="this.replies.length > 0"
             class="text-center w-100">
-             {{ show ? 'Close' : 'Show' }} replys ({{ this.comment.replies.length }})
+             {{ show ? 'Close' : 'Show' }} replys ({{ this.replies.length }})
         </button>
-        <div class="" :class="{ 'hidden' : !show }">
+        <div :class="{ 'hidden' : !show }">
                 <CommentComponent 
                     @preview="commentPreview"
-                    @commented="this.$emit('commented')"
-                    v-for="comment in this.comment.replies" 
+                    v-for="comment in this.replies" 
                     :key="comment.id" 
                     :comment="comment" />
+            <div v-if="this.replies.length > 0">
+                <button 
+                    v-if="this.page < this.totalPages"
+                    @click="this.fetchReplies(); this.page++"
+                    class="text-center w-100">
+                     Load more...
+                </button>
+            </div>
         </div>
     </article>
     <vue-easy-lightbox
@@ -98,9 +105,10 @@
 </template>
 
 <script>
+import { fetchReplyComments } from "../api.js";
+
 import FormComponent from "./FormComponent.vue";
 import VueEasyLightbox from 'vue-easy-lightbox'
-
 
 export default {
     components: {
@@ -112,14 +120,24 @@ export default {
     },
     data() {
       return {
+        options: { 
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric'
+            },
+        replies: [],
         show: true,
         reply: false,
-        comments: [],
         images: [],
         toggler: false,
         slide: 1,
         visibleRef: false,
         indexRef: 0,
+        page: 1,
+        totalPages: 1,
       };
     },
     computed: {
@@ -154,8 +172,27 @@ export default {
     },
     mounted() {
         document.addEventListener('click', this.handleClickOutside);
+        this.fetchReplies();
     },
     methods: {
+        async fetchReplies() {
+            let url = `/api/replyComments?page=${this.page}&id=${this.comment.id}`;
+            
+            await fetchReplyComments(url)
+                .then((response) => {
+                    let responseJson = JSON.parse(response)
+
+                    let comments = responseJson.replyComments.data
+                    this.totalPages = responseJson.totalPages;
+
+                    for (let comment of comments) {
+                        this.replies.push(comment);
+                    }
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        },
         replyComment() {
             this.reply = true;
         },
@@ -167,12 +204,12 @@ export default {
             }
         },
         async commentPreview(comment) {
-            for (let i = 0; i < this.comment.replies.length; i++) {
-                if (!this.comment.replies[i].id) {
-                    this.comment.replies.splice(i, 1);
+            for (let i = 0; i < this.replies.length; i++) {
+                if (!this.replies[i].id) {
+                    this.replies.splice(i, 1);
                 }
             }
-            this.comment.replies.unshift(comment);
+            this.replies.unshift(comment);
         },
         preview(index) {
             this.indexRef = index;

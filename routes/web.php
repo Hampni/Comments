@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\CaptchaController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CommentsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,4 +17,5 @@ use App\Http\Controllers\CommentsController;
 Route::get('/', function () {
     return view('homepage');
 });
-Route::get('/getCapthca', [CommentsController::class, 'getCapthca']);
+
+Route::get('/getCapthca', [CaptchaController::class, 'getCapthca']);

@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import { fetchComments, clearCache } from "../api.js";
+import { fetchComments } from "../api.js";
 import CommentComponent from "./CommentComponent.vue";
 import FormComponent from "./FormComponent.vue";
 
@@ -97,12 +97,12 @@ export default {
         FormComponent,
     },
     created() {
-        window.Echo.channel('new-comment').listen('NewRecordCreated', async (data) => {
-            if (data.message === "new_comment_posted") {
-                await clearCache('/api/clearCache');
-                await this.fetch();
-            }
-        });
+        // window.Echo.channel('new-comment').listen('NewRecordCreated', async (data) => {
+        //     if (data.message === "new_comment_posted") {
+        //         await clearCache('/api/clearCache');
+        //         await this.fetch();
+        //     }
+        // });
     },
     mounted() {
         this.fetch();
@@ -117,9 +117,9 @@ export default {
 
             await fetchComments(url)
                 .then((response) => {
-                    this.comments = response.comments;
+                    this.comments = response.comments.data;
                     this.totalPages = response.totalPages;
-                    this.commentsAmount = response.commentsAmount.length;
+                    this.commentsAmount = response.commentsAmount;
                 })
                 .catch((err) => {
                     console.log(err);
