@@ -19,7 +19,15 @@ class CommentRequest extends FormRequest
             'email' => 'required|email',
             'comment' => 'required',
             'homepage' => 'nullable|string',
-            'file.*' => 'max:100'
+            'file.*' => 'max:100|mimes:jpg,png,gif,txt'
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'file.*.mimes' => 'Files must be a file of type: jpg, png, gif, txt.',
+            'file.*.max' => 'Files must be less then 100 kilobytes.',
         ];
     }
 }

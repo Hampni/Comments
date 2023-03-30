@@ -35,7 +35,7 @@
              class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" type="file" name="file" id="file" ref="myFiles" accept="image/jpg,image/png,image/gif,text/plain" multiple>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-300" id="file_input_help">SVG, PNG, JPG or GIF (MAX. 320х240px), 100kb.</p>
             <div class="preview">
-
+                
                 <div class="flex flex-column">
                     <div>
                          <a v-for="(file, index) in files" :key="index" 
@@ -139,6 +139,7 @@ export default {
                     );
                     this.captchaImage = "data:image/png;base64," + imageBase64;
                     this.captchaText = response.headers["x-captcha"];
+                    console.log(this.captchaText);
                     
                     if (this.captchaText == undefined) {
                         this.getCaptcha();
@@ -238,7 +239,7 @@ export default {
                             if (prop.includes('file.')) {
                                 let propId = 'file'
                                 element = document.getElementById(propId + '-error')
-                                errorMessage = 'The files must not be greater than 100 kilobytes.'
+                                errorMessage = response.response.data.errors['file.0'][0];
                                 element.innerHTML = errorMessage
                                 element.scrollIntoView({ behavior: 'smooth' })
                             } else {

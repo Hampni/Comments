@@ -39,7 +39,6 @@ class Comment extends Model
         return $query;
     }
 
-
     private static function sortComments($sort_by)
     {
         switch ($sort_by) {

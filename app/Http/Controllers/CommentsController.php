@@ -13,7 +13,7 @@ class CommentsController extends Controller
 {
 
     private const COMMENTS_REPLIES_PER_PAGE = 3;
-    private const COMMENTS_PER_PAGE = 5;
+    private const COMMENTS_PER_PAGE = 10;
 
     /**
      * Retrieve comments based on the given request parameters
@@ -47,14 +47,14 @@ class CommentsController extends Controller
      * @param Request $request The HTTP request object.
      * @return \Illuminate\Http\JsonResponse The JSON response containing the retrieved reply comments.
      */
-    public function getReplyComments(Request $request)
+    public function getReplyComments(Request $request, int $id)
     {
         $requestParams = [
             'paginate' => self::COMMENTS_REPLIES_PER_PAGE,
             'page' => $request->input('page', '1'),
         ];
 
-        $replyComments = Comment::getComments($requestParams, $request->input('id'));
+        $replyComments = Comment::getComments($requestParams, $id);
 
         $data = [
             'replyComments' => $replyComments,
@@ -65,7 +65,7 @@ class CommentsController extends Controller
     }
 
     /**
-     * stores new comment
+     * Stores new comment
      * 
      * @param Request $request
      */
@@ -97,6 +97,8 @@ class CommentsController extends Controller
                 ]);
             }
         };
+
+        NewRecordCreated::dispatch('new_comment_posted');
 
         return true;
     }

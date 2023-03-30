@@ -12,23 +12,8 @@ export const fetchComments = async (url) => {
 export const fetchReplyComments = async (url) => {
     try {
         return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("GET", url, true);
-
-            xhr.onload = function () {
-                if (xhr.status >= 200 && xhr.status < 400) {
-                    const data = xhr.responseText;
-                    resolve(data);
-                } else {
-                    reject(new Error("Request failed."));
-                }
-            };
-
-            xhr.onerror = function () {
-                reject(new Error("Request failed."));
-            };
-
-            xhr.send();
+            const response = axios.get(url);
+            resolve(response);
         });
     } catch (e) {
         console.error(e);

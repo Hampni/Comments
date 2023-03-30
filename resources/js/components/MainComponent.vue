@@ -97,12 +97,13 @@ export default {
         FormComponent,
     },
     created() {
-        // window.Echo.channel('new-comment').listen('NewRecordCreated', async (data) => {
-        //     if (data.message === "new_comment_posted") {
-        //         await clearCache('/api/clearCache');
-        //         await this.fetch();
-        //     }
-        // });
+        window.Echo.channel('new-comment').listen('NewRecordCreated', async (data) => {
+            if (data.message === "new_comment_posted") {
+                // await clearCache('/api/clearCache');
+                console.log('recieved message');
+                await this.fetch();
+            }
+        });
     },
     mounted() {
         this.fetch();

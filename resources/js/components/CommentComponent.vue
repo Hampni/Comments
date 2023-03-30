@@ -176,14 +176,13 @@ export default {
     },
     methods: {
         async fetchReplies() {
-            let url = `/api/replyComments?page=${this.page}&id=${this.comment.id}`;
+            let url = `/api/replyComments/${this.comment.id}?page=${this.page}`;
             
             await fetchReplyComments(url)
                 .then((response) => {
-                    let responseJson = JSON.parse(response)
-
-                    let comments = responseJson.replyComments.data
-                    this.totalPages = responseJson.totalPages;
+                    let responseData = response.data;
+                    let comments = responseData.replyComments.data
+                    this.totalPages = responseData.totalPages;
 
                     for (let comment of comments) {
                         this.replies.push(comment);
